@@ -4,12 +4,11 @@
 
 static NSString *const kColorAnimationKey                   = @"animateColors";
 
-static NSString *const kStartPointAnimationKey              = @"animateStartPoint";
-static NSString *const kEndPointAnimationKey                = @"animateEndPoint";
+static NSString *const kStartEndPointAnimationKey           = @"animateStartEndPoint";
 
 static NSString *const kLocationsAnimationKey               = @"animateLocations";
 
-#define DURATION_DEFAULT_ANIMATION          0.5f
+#define DURATION_DEFAULT_ANIMATION          2.0f
 #define DURATION_NO_ANIMATION               0.0f
 
 #define HORIZONTAL_START_POINT  CGPointMake(0, 0.5)
@@ -100,26 +99,29 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
         duration                            = DURATION_DEFAULT_ANIMATION;
     }
     
+    CAAnimation *locationAnimation   =
+    [self _animationWithKeyPath:NSStringFromSelector(@selector(colors))
+                      fromValue:self.gradientLayer.colors
+                        toValue:cgColors];
+    
     __weak typeof(self) wself           = self;
-    [self _performAnimationsWithKeyPath:NSStringFromSelector(@selector(colors))
-                           keyAnimation:kColorAnimationKey
-                               duration:duration
-                              fromValue:self.gradientLayer.colors
-                                toValue:cgColors
-                             completion:^(BOOL completed) {
-                                 if (!wself)
-                                     return;
-                                 
-                                 if (completed)
-                                 {
-                                     wself.gradientLayer.colors       = cgColors;
-                                 }
-                                 
-                                 if (finished)
-                                 {
-                                     finished(completed);
-                                 }
-                             }];
+    [self _performAnimations:@[locationAnimation]
+                    duration:duration
+                keyAnimation:kColorAnimationKey
+                  completion:^(BOOL completed) {
+                      if (!wself)
+                          return;
+                      
+                      if (completed)
+                      {
+                          wself.gradientLayer.colors       = cgColors;
+                      }
+                      
+                      if (finished)
+                      {
+                          finished(completed);
+                      }
+                  }];
 }
 
 - (NSArray *)colors
@@ -174,26 +176,29 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
         duration                            = DURATION_DEFAULT_ANIMATION;
     }
     
+    CAAnimation *locationAnimation   =
+    [self _animationWithKeyPath:NSStringFromSelector(@selector(locations))
+                      fromValue:self.gradientLayer.locations
+                        toValue:locations];
+    
     __weak typeof(self) wself           = self;
-    [self _performAnimationsWithKeyPath:NSStringFromSelector(@selector(locations))
-                           keyAnimation:kLocationsAnimationKey
-                               duration:duration
-                              fromValue:self.gradientLayer.locations
-                                toValue:locations
-                             completion:^(BOOL completed) {
-                                 if (!wself)
-                                     return;
-                                 
-                                 if (completed)
-                                 {
-                                     wself.gradientLayer.locations       = locations;
-                                 }
-                                 
-                                 if (finished)
-                                 {
-                                     finished(completed);
-                                 }
-                             }];
+    [self _performAnimations:@[locationAnimation]
+                    duration:duration
+                keyAnimation:kLocationsAnimationKey
+                  completion:^(BOOL completed) {
+                      if (!wself)
+                          return;
+                      
+                      if (completed)
+                      {
+                          wself.gradientLayer.locations       = locations;
+                      }
+                      
+                      if (finished)
+                      {
+                          finished(completed);
+                      }
+                  }];
 }
 
 #pragma mark - direction
@@ -242,82 +247,60 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
         duration            = DURATION_DEFAULT_ANIMATION;
     }
     
-    __block BOOL startPointFinished         = NO;
-    __block BOOL endPointFinished           = NO;
-    __block BOOL result                     = YES;
+    CAAnimation *startAnimation         =
+    [self _animationWithKeyPath:NSStringFromSelector(@selector(startPoint))
+                      fromValue:[NSValue valueWithCGPoint:self.gradientLayer.startPoint]
+                        toValue:[NSValue valueWithCGPoint:startPoint]];
     
-    void(^callback)() = ^()
-    {
-        if (startPointFinished && endPointFinished)
-        {
-            if (finished)
-            {
-                finished(result);
-            }
-        }
-    };
-
+    CAAnimation *endAnimation           =
+    [self _animationWithKeyPath:NSStringFromSelector(@selector(endPoint))
+                      fromValue:[NSValue valueWithCGPoint:self.gradientLayer.endPoint]
+                        toValue:[NSValue valueWithCGPoint:endPoint]];
+    
     __weak typeof(self) wself           = self;
-    [self _performAnimationsWithKeyPath:NSStringFromSelector(@selector(startPoint))
-                           keyAnimation:kStartPointAnimationKey
-                               duration:duration
-                              fromValue:[NSValue valueWithCGPoint:self.gradientLayer.startPoint]
-                                toValue:[NSValue valueWithCGPoint:startPoint]
-                             completion:^(BOOL completed) {
-                                 if (!wself)
-                                     return;
-                                 
-                                 if (completed)
-                                 {
-                                     wself.gradientLayer.startPoint       = startPoint;
-                                 }
-                                 
-                                 startPointFinished = YES;
-                                 if (result)
-                                 {
-                                     result     = completed;
-                                 }
-                                 
-                                 callback();
-                             }];
-    [self _performAnimationsWithKeyPath:NSStringFromSelector(@selector(endPoint))
-                           keyAnimation:kEndPointAnimationKey
-                               duration:duration
-                              fromValue:[NSValue valueWithCGPoint:self.gradientLayer.endPoint]
-                                toValue:[NSValue valueWithCGPoint:endPoint]
-                             completion:^(BOOL completed) {
-                                 if (!wself)
-                                     return;
-                                 
-                                 if (completed)
-                                 {
-                                     wself.gradientLayer.endPoint       = endPoint;
-                                 }
-                                 
-                                 endPointFinished = YES;
-                                 if (result)
-                                 {
-                                     result     = completed;
-                                 }
-                                 
-                                 callback();
-                             }];
+    [self _performAnimations:@[startAnimation, endAnimation]
+                    duration:duration
+                keyAnimation:kStartEndPointAnimationKey
+                  completion:^(BOOL completed) {
+                      if (!wself)
+                          return;
+                      
+                      if (completed)
+                      {
+                          wself.gradientLayer.startPoint     = startPoint;
+                          wself.gradientLayer.endPoint       = endPoint;
+                      }
+                      
+                      if (finished)
+                      {
+                          finished(completed);
+                      }
+                  }];
 }
 
 - (BOOL)isRunningAnimationDirection
 {
-    return  ([self.gradientLayer animationForKey:kStartPointAnimationKey] != nil) &&
-            ([self.gradientLayer animationForKey:kEndPointAnimationKey] != nil);
+    return ([self.gradientLayer animationForKey:kStartEndPointAnimationKey] != nil);
 }
 
 #pragma mark - private
 
-- (void)_performAnimationsWithKeyPath:(NSString *)keyPath
-                         keyAnimation:(NSString *)keyAnimation
-                             duration:(CFTimeInterval)duration
-                            fromValue:(id)fromValue
-                              toValue:(id)toValue
-                           completion:(void(^)(BOOL completed))completion
+- (CAAnimation *)_animationWithKeyPath:(NSString *)keyPath
+                             fromValue:(id)fromValue
+                               toValue:(id)toValue
+{
+    CABasicAnimation *animation     = [CABasicAnimation animationWithKeyPath:keyPath];
+    animation.fromValue             = fromValue;
+    animation.toValue               = toValue;
+    animation.fillMode              = kCAFillModeForwards;
+    animation.removedOnCompletion   = NO;
+    return animation;
+}
+
+- (void)_performAnimations:(NSArray *)animations
+                  duration:(CFTimeInterval)duration
+              keyAnimation:(NSString *)keyAnimation
+                completion:(void(^)(BOOL completed))completion
 {
     void(^blockAction)() =
     ^{
@@ -333,17 +316,14 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
                 completion(completed);
             }
         };
-        
+
         if (duration != DURATION_NO_ANIMATION)
         {
-            CABasicAnimation *animation     = [CABasicAnimation animationWithKeyPath:keyPath];
-            animation.duration              = duration;
-            animation.fromValue             = fromValue;
-            animation.toValue               = toValue;
-            animation.fillMode              = kCAFillModeForwards;
-            animation.removedOnCompletion   = NO;
-            [animation setCompletion:blockCompleted];
-            [self.gradientLayer addAnimation:animation
+            CAAnimationGroup *animationGroup     = [CAAnimationGroup animation];
+            animationGroup.animations            = animations;
+            animationGroup.duration              = duration;
+            [animationGroup setCompletion:blockCompleted];
+            [self.gradientLayer addAnimation:animationGroup
                                       forKey:keyAnimation];
         }
         else
@@ -351,7 +331,7 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
             blockCompleted(YES);
         }
     };
-    
+
     if ([NSThread isMainThread])
     {
         blockAction();
@@ -363,5 +343,3 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
 }
 
 @end
-
-

@@ -17,7 +17,7 @@ NS_CLASS_AVAILABLE_IOS(3_0) @interface GVGradientView : UIView
  self.colors         = colors;
  @endcode
  */
-@property (nonatomic, readwrite, strong) NSArray *colors;                                               //UIColor
+@property (nonatomic, readwrite, copy) NSArray *colors;                                               //UIColor
 @property (nonatomic, readonly, assign) BOOL isRunningAnimationColor;
 - (void)setColors:(NSArray *)colors
          animated:(BOOL)animated
@@ -28,7 +28,7 @@ NS_CLASS_AVAILABLE_IOS(3_0) @interface GVGradientView : UIView
  self.locations         = locations;
  @endcode
  */
-@property (nonatomic, readwrite, strong) NSArray *locations;                                            //NSNumber
+@property (nonatomic, readwrite, copy) NSArray *locations;                                            //NSNumber
 @property (nonatomic, readonly, assign) BOOL isRunningAnimationLocation;
 - (void)setLocations:(NSArray *)locations
          animated:(BOOL)animated
