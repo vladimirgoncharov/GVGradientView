@@ -8,7 +8,7 @@ static NSString *const kStartEndPointAnimationKey           = @"animateStartEndP
 
 static NSString *const kLocationsAnimationKey               = @"animateLocations";
 
-#define DURATION_DEFAULT_ANIMATION          2.0f
+#define DURATION_DEFAULT_ANIMATION          0.5f
 #define DURATION_NO_ANIMATION               0.0f
 
 #define HORIZONTAL_START_POINT  CGPointMake(0, 0.5)
@@ -47,7 +47,7 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
     self.direction      = GVGradientDirectionVertical;
 }
 
-#pragma mark - 
+#pragma mark -
 #pragma mark - OVERLAY
 
 + (Class)layerClass
@@ -99,13 +99,13 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
         duration                            = DURATION_DEFAULT_ANIMATION;
     }
     
-    CAAnimation *locationAnimation   =
+    CAAnimation *colorAnimation   =
     [self _animationWithKeyPath:NSStringFromSelector(@selector(colors))
                       fromValue:self.gradientLayer.colors
                         toValue:cgColors];
     
     __weak typeof(self) wself           = self;
-    [self _performAnimations:@[locationAnimation]
+    [self _performAnimations:@[colorAnimation]
                     duration:duration
                 keyAnimation:kColorAnimationKey
                   completion:^(BOOL completed) {
@@ -292,8 +292,8 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
     CABasicAnimation *animation     = [CABasicAnimation animationWithKeyPath:keyPath];
     animation.fromValue             = fromValue;
     animation.toValue               = toValue;
-    animation.fillMode              = kCAFillModeForwards;
     animation.removedOnCompletion   = NO;
+    animation.fillMode              = kCAFillModeForwards;
     return animation;
 }
 
@@ -302,11 +302,11 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
               keyAnimation:(NSString *)keyAnimation
                 completion:(void(^)(BOOL completed))completion
 {
+    __weak typeof(self) wself       = self;
     void(^blockAction)() =
     ^{
-        [self.gradientLayer removeAnimationForKey:keyAnimation];
+        [wself.gradientLayer removeAnimationForKey:keyAnimation];
         
-        __weak typeof(self) wself       = self;
         void(^blockCompleted)(BOOL) =
         ^(BOOL completed)
         {
@@ -316,22 +316,24 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
                 completion(completed);
             }
         };
-
+        
         if (duration != DURATION_NO_ANIMATION)
         {
             CAAnimationGroup *animationGroup     = [CAAnimationGroup animation];
             animationGroup.animations            = animations;
             animationGroup.duration              = duration;
             [animationGroup setCompletion:blockCompleted];
-            [self.gradientLayer addAnimation:animationGroup
-                                      forKey:keyAnimation];
+            animationGroup.fillMode              = kCAFillModeForwards;
+            animationGroup.removedOnCompletion   = NO;
+            [wself.gradientLayer addAnimation:animationGroup
+                                       forKey:keyAnimation];
         }
         else
         {
             blockCompleted(YES);
         }
     };
-
+    
     if ([NSThread isMainThread])
     {
         blockAction();
