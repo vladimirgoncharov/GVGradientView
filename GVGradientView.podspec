@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "GVGradientView"
-  s.version      = "0.0.1"
+  s.version      = "1.0.2"
   s.summary      = "Simplifies the gradient + animation"
   s.homepage     = "https://github.com/VladimirGoncharov/GVGradientView"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
