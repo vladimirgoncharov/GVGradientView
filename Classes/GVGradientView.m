@@ -1,6 +1,6 @@
 #import "GVGradientView.h"
 
-#import "CAAnimation+Blocks.h"
+#import <CAAnimationBlocks/CAAnimation+Blocks.h>
 
 static NSString *const kColorAnimationKey                   = @"animateColors";
 
@@ -8,7 +8,7 @@ static NSString *const kStartEndPointAnimationKey           = @"animateStartEndP
 
 static NSString *const kLocationsAnimationKey               = @"animateLocations";
 
-#define DURATION_DEFAULT_ANIMATION          0.5f
+#define DURATION_DEFAULT_ANIMATION          2.0f
 #define DURATION_NO_ANIMATION               0.0f
 
 #define HORIZONTAL_START_POINT  CGPointMake(0, 0.5)
@@ -44,7 +44,7 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
 
 - (void)_loadDefaulSettings
 {
-    self.direction      = GVGradientDirectionVertical;
+    self.direction      = GVGradientDirectionHorizontal;
 }
 
 #pragma mark -
