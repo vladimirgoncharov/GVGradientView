@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.author       = { "DFandEL" => "vladimir1631@yandex.ru" }
   s.platform     = :ios, '5.0'
-  s.source       = { :git => "https://github.com/VladimirGoncharov/GVGradientView.git", :commit => "255f480020114cc7f00965b77ec1860049f12470" }
+  s.source       = { :git => "https://github.com/VladimirGoncharov/GVGradientView.git", :tag => s.version.to_s }
   s.source_files = 'Classes/*.{h,m}'
   s.requires_arc = true
   s.dependency   'CAAnimationBlocks'
