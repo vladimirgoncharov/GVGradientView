@@ -22,18 +22,15 @@
 {
     [super viewDidAppear:animated];
     
-    [self.gradientView setColors:@[[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f],
-                                   [UIColor colorWithRed:0.0f green:102/255.0f blue:0.0f alpha:1.0f]]
-                        animated:YES
-                        finished:^(BOOL finished) {
-                            [self.gradientView setDirection:GVGradientDirectionVertical
-                                                   animated:YES
-                                                   finished:nil];
-                            [self.gradientView setColors:@[[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f],
-                                                           [UIColor colorWithRed:1.0f green:180/255.0f blue:0.0f alpha:1.0f]]
-                                                animated:YES
-                                                finished:nil];
-                        }];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.gradientView setDirection:GVGradientDirectionVertical
+                               animated:YES
+                               finished:nil];
+        [self.gradientView setColors:@[[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f],
+                                       [UIColor colorWithRed:1.0f green:180/255.0f blue:0.0f alpha:1.0f]]
+                            animated:YES
+                            finished:nil];
+    });
 }
 
 - (void)didReceiveMemoryWarning

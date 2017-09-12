@@ -1,2 +1,7 @@
+source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '6.0'
-pod 'CAAnimationBlocks'
+inhibit_all_warnings!
+
+target 'Project' do
+    pod 'CAAnimationBlocks'
+end

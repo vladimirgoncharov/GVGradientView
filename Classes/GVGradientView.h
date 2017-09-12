@@ -3,13 +3,14 @@
 
 typedef NS_ENUM(NSUInteger, GVGradientDirection)
 {
-    GVGradientDirectionHorizontal       = 1 << 0,
-    GVGradientDirectionVertical         = 1 << 1
+    GVGradientDirectionHorizontal,
+    GVGradientDirectionVertical,
+    GVGradientDirectionCustom
 };
 
-NS_CLASS_AVAILABLE_IOS(3_0) @interface GVGradientView : UIView 
+NS_CLASS_AVAILABLE_IOS(3_0) IB_DESIGNABLE @interface GVGradientView : UIView
 
-@property (nonatomic, readonly, strong) CAGradientLayer *gradientLayer;
+@property (nonatomic, readonly, strong, nonnull) CAGradientLayer *gradientLayer;
 
 /*!
  @code
@@ -17,27 +18,55 @@ NS_CLASS_AVAILABLE_IOS(3_0) @interface GVGradientView : UIView
  self.colors         = colors;
  @endcode
  */
-@property (nonatomic, readwrite, copy) NSArray *colors;                                               //UIColor
+@property (nonatomic, copy, nullable) NSArray<UIColor *> *colors;
 @property (nonatomic, readonly, assign) BOOL isRunningAnimationColor;
-- (void)setColors:(NSArray *)colors
+- (void)setColors:(NSArray * _Nullable)colors
          animated:(BOOL)animated
-         finished:(void(^)(BOOL))finished;
+         finished:(void(^_Nullable)(BOOL))finished;
 /*!
  @code
  NSArray *locations     = @[[NSNumber numberWithFloat:0.0f], [NSNumber numberWithFloat:0.4f], [NSNumber numberWithFloat:1.0f]];
  self.locations         = locations;
  @endcode
  */
-@property (nonatomic, readwrite, copy) NSArray *locations;                                            //NSNumber
+@property (nonatomic, copy, nullable) NSArray<NSNumber *> *locations;
 @property (nonatomic, readonly, assign) BOOL isRunningAnimationLocation;
-- (void)setLocations:(NSArray *)locations
+- (void)setLocations:(NSArray *_Nullable)locations
          animated:(BOOL)animated
-         finished:(void(^)(BOOL))finished;
+         finished:(void(^_Nullable)(BOOL))finished;
 
-@property (nonatomic, readwrite, assign) GVGradientDirection direction;                                 //def. GVGradientDirectionVertical
+/*!
+ @code
+ self.direction = GVGradientDirectionHorizontal;
+ @endcode
+ */
+@property (nonatomic, assign) GVGradientDirection direction; //def. GVGradientDirectionHorizontal
 @property (nonatomic, readonly, assign) BOOL isRunningAnimationDirection;
 - (void)setDirection:(GVGradientDirection)direction
             animated:(BOOL)animated
-            finished:(void (^)(BOOL))finished;
+            finished:(void (^_Nullable)(BOOL))finished;
+
+#pragma mark - IB
+
+@property (nonatomic) IBInspectable CGPoint startPoint;
+@property (nonatomic) IBInspectable CGPoint endPoint;
+
+@property (nonatomic, strong, nullable) IBInspectable UIColor *color0;
+@property (nonatomic) IBInspectable CGFloat location0;
+
+@property (nonatomic, strong, nullable) IBInspectable UIColor *color1;
+@property (nonatomic) IBInspectable CGFloat location1;
+
+@property (nonatomic, strong, nullable) IBInspectable UIColor *color2;
+@property (nonatomic) IBInspectable CGFloat location2;
+
+@property (nonatomic, strong, nullable) IBInspectable UIColor *color3;
+@property (nonatomic) IBInspectable CGFloat location3;
+
+@property (nonatomic, strong, nullable) IBInspectable UIColor *color4;
+@property (nonatomic) IBInspectable CGFloat location4;
+
+@property (nonatomic, strong, nullable) IBInspectable UIColor *color5;
+@property (nonatomic) IBInspectable CGFloat location5;
 
 @end
