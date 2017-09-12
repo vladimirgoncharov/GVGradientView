@@ -3,12 +3,10 @@
 #import <CAAnimationBlocks/CAAnimation+Blocks.h>
 
 static NSString *const kColorAnimationKey                   = @"animateColors";
-
 static NSString *const kStartEndPointAnimationKey           = @"animateStartEndPoint";
-
 static NSString *const kLocationsAnimationKey               = @"animateLocations";
 
-#define DURATION_DEFAULT_ANIMATION          2.0f
+#define DURATION_DEFAULT_ANIMATION          0.5f
 #define DURATION_NO_ANIMATION               0.0f
 
 #define HORIZONTAL_START_POINT  CGPointMake(0, 0.5)
@@ -149,11 +147,6 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
               finished:nil];
 }
 
-- (BOOL)isRunningAnimationLocation
-{
-    return ([self.gradientLayer animationForKey:kLocationsAnimationKey] != nil);
-}
-
 - (void)setLocations:(NSArray *)locations
             animated:(BOOL)animated
             finished:(void(^)(BOOL))finished
@@ -201,6 +194,15 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
                   }];
 }
 
+- (NSArray<NSNumber *> *)locations {
+    return self.gradientLayer.locations;
+}
+
+- (BOOL)isRunningAnimationLocation
+{
+    return ([self.gradientLayer animationForKey:kLocationsAnimationKey] != nil);
+}
+
 #pragma mark - direction
 
 - (void)setDirection:(GVGradientDirection)direction
@@ -214,9 +216,6 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
             animated:(BOOL)animated
             finished:(void (^)(BOOL))finished
 {
-    if (direction == _direction)
-        return;
-    
     CGPoint startPoint      = CGPointZero;
     CGPoint endPoint        = CGPointZero;
     
@@ -235,11 +234,11 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
         }; break;
             
         default:
+            NSLog(@"Use startPoint and endPoint for setting custom values");
             return;
             break;
     }
     
-    _direction              = direction;
     CFTimeInterval duration = DURATION_NO_ANIMATION;
     
     if (animated)
@@ -276,6 +275,22 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
                           finished(completed);
                       }
                   }];
+}
+
+- (GVGradientDirection)direction {
+    if (self.startPoint.x == HORIZONTAL_START_POINT.x &&
+        self.startPoint.y == HORIZONTAL_START_POINT.y &&
+        self.endPoint.x == HORIZONTAL_END_POINT.x &&
+        self.endPoint.y == HORIZONTAL_END_POINT.y) {
+        return GVGradientDirectionHorizontal;
+    }
+    if (self.startPoint.x == VERTICAL_START_POINT.x &&
+        self.startPoint.y == VERTICAL_START_POINT.y &&
+        self.endPoint.x == VERTICAL_END_POINT.x &&
+        self.endPoint.y == VERTICAL_END_POINT.y) {
+        return GVGradientDirectionVertical;
+    }
+    return GVGradientDirectionCustom;
 }
 
 - (BOOL)isRunningAnimationDirection
@@ -343,5 +358,65 @@ static NSString *const kLocationsAnimationKey               = @"animateLocations
         dispatch_sync(dispatch_get_main_queue(), blockAction);
     }
 }
+
+#pragma mark - IB
+
+- (void)setStartPoint:(CGPoint)startPoint {
+    self.gradientLayer.startPoint = startPoint;
+}
+
+- (CGPoint)startPoint {
+    return self.gradientLayer.startPoint;
+}
+
+- (void)setEndPoint:(CGPoint)endPoint {
+    self.gradientLayer.endPoint = endPoint;
+}
+
+- (CGPoint)endPoint {
+    return self.gradientLayer.endPoint;
+}
+
+#define DefineColorAndLocationSetters(i) \
+- (void)setColor##i:(UIColor *)color##i { \
+    NSMutableArray *uiColors = [self.colors mutableCopy]; \
+    if (uiColors.count > i) { \
+        [uiColors replaceObjectAtIndex:i withObject:color##i]; \
+    } else { \
+        [uiColors addObject:color##i]; \
+    } \
+    [self setColors:uiColors]; \
+} \
+\
+- (UIColor *)color##i { \
+    if ([self.colors count] > i) { \
+        return self.colors[i]; \
+    } \
+    return nil; \
+} \
+\
+- (void)setLocation##i:(CGFloat)location##i { \
+    NSMutableArray *locations = [self.locations mutableCopy]; \
+    if (locations.count > i) { \
+        [locations replaceObjectAtIndex:i withObject:@(location##i)]; \
+    } else { \
+        [locations addObject:@(location##i)]; \
+    } \
+    [self setLocations:locations]; \
+} \
+\
+- (CGFloat)location##i { \
+    if ([self.locations count] > i) { \
+        return [self.locations[i] floatValue]; \
+    } \
+    return NSNotFound; \
+}
+
+DefineColorAndLocationSetters(0)
+DefineColorAndLocationSetters(1)
+DefineColorAndLocationSetters(2)
+DefineColorAndLocationSetters(3)
+DefineColorAndLocationSetters(4)
+DefineColorAndLocationSetters(5)
 
 @end
